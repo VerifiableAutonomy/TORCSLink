@@ -148,17 +148,19 @@ static void drive(int index, tCarElt* car, tSituation *s)
 			}
 			float latErr = car->_trkPos.toMiddle;
 			float radius = car->_trkPos.seg->radius;
+			float rpm = car->_enginerpm;
 
-			char sendBuf[20];
+			char sendBuf[24];
 			memcpy(sendBuf,&dist,4);
 			memcpy(sendBuf+4,&speed,4);
 			memcpy(sendBuf+8,&angle,4);
 			memcpy(sendBuf+12,&latErr,4);
 			memcpy(sendBuf+16,&radius,4);
+			memcpy(sendBuf+20,&rpm,4);
 		
 
 
-			sendto(sock,sendBuf,20,0,(const sockaddr *)&si_other,slen);
+			sendto(sock,sendBuf,24,0,(const sockaddr *)&si_other,slen);
 		}
 	}
 }
