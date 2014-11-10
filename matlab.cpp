@@ -111,7 +111,10 @@ static void newRace(int index, tCarElt* car, tSituation *sit)
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons(BASE_PORT);
-     
+    
+	int buf = 20;
+	setsockopt(sock,SOL_SOCKET,SO_RCVBUF,(const char*)&buf,sizeof(int));
+
     //Bind
     bind(sock,(struct sockaddr *)&server, sizeof(server));
 }
@@ -139,6 +142,10 @@ static void drive(int index, tCarElt* car, tSituation *s)
 			float dist = RtGetDistFromStart(car);
 			float speed = car->_speed_x;
 			float angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
+			angle = fmod(angle + 2*PI,2*PI);
+			if (angle > PI) {
+				angle = 2*PI - angle;
+			}
 			float latErr = car->_trkPos.toMiddle;
 			float radius = car->_trkPos.seg->radius;
 
