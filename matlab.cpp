@@ -144,7 +144,7 @@ static void drive(int index, tCarElt* car, tSituation *s)
 			float angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
 			angle = fmod(angle + 2*PI,2*PI);
 			if (angle > PI) {
-				angle = 2*PI - angle;
+				angle = angle - 2*PI;
 			}
 			float latErr = car->_trkPos.toMiddle;
 			float radius = car->_trkPos.seg->radius;
