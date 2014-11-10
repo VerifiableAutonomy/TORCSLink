@@ -95,7 +95,6 @@ static void initTrack(int index, tTrack* track, void *carHandle, void **carParmH
 SOCKET sock;
 struct sockaddr_in server, si_other;
 int slen , recv_len;
-char recvBuf[20];
 WSADATA wsa;
 // Start a new race.
 static void newRace(int index, tCarElt* car, tSituation *sit)
@@ -129,16 +128,30 @@ static void drive(int index, tCarElt* car, tSituation *s)
 
 	if (WSAPoll(&fds,1,10)) {
 		if (fds.revents | POLLIN) {
-			if ((recv_len = recvfrom(sock, recvBuf, 20, 0, (struct sockaddr *) &si_other, &slen)) == SOCKET_ERROR)
-			{
-				printf("recvfrom() failed with error code : %d" , WSAGetLastError());
-				exit(EXIT_FAILURE);
-			}
+			char recvBuf[20];
+			recv_len = recvfrom(sock, recvBuf, 20, 0, (struct sockaddr *) &si_other, &slen);
 			car->ctrl.accelCmd = *(float*)(recvBuf);
 			car->ctrl.brakeCmd = *(float*)(recvBuf+4);
 			car->ctrl.clutchCmd = *(float*)(recvBuf+8);
 			car->ctrl.gear = *(int*)(recvBuf+12);
 			car->ctrl.steer = *(float*)(recvBuf+16);
+
+			float dist = RtGetDistFromStart(car);
+			float speed = car->_speed_x;
+			float angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
+			float latErr = car->_trkPos.toMiddle;
+			float radius = car->_trkPos.seg->radius;
+
+			char sendBuf[20];
+			memcpy(sendBuf,&dist,4);
+			memcpy(sendBuf+4,&speed,4);
+			memcpy(sendBuf+8,&angle,4);
+			memcpy(sendBuf+12,&latErr,4);
+			memcpy(sendBuf+16,&radius,4);
+		
+
+
+			sendto(sock,sendBuf,20,0,(const sockaddr *)&si_other,slen);
 		}
 	}
 }
