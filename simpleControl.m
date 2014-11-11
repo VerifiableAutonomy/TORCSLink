@@ -1,5 +1,5 @@
 %% Create UDP Connection
-U = udp('127.0.0.1',8888);
+U = udp('127.0.0.1',8000);
 fopen(U);
 bufOut = zeros(20,1);
 
@@ -27,3 +27,4 @@ speed = typecast(bufIn(5:8),'single')
 angle = typecast(bufIn(9:12),'single')
 latErr = typecast(bufIn(13:16),'single')
 radius = typecast(bufIn(17:20),'single')
+rpm = typecast(bufIn(21:24),'single')

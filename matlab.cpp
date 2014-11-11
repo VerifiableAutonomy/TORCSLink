@@ -12,7 +12,7 @@
 #include <windows.h>
 #endif
 
-#define BASE_PORT 8888   //The port on which to listen for incoming data
+#define BASE_PORT 8000   //The port on which to listen for incoming data
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,9 +45,17 @@ static int InitFuncPt(int index, void *pt);
 static void endRace(int index, tCarElt *car, tSituation *s);
 
 
+SOCKET sock[NBBOTS];
+WSADATA wsa;
+
+
 // Module entry point.
 extern "C" int matlab(tModInfo *modInfo)
 {
+     
+    //Initialise winsock
+    WSAStartup(MAKEWORD(2,2),&wsa);
+	
 	int i;
 	
 	// Clear all structures.
@@ -92,47 +100,41 @@ static void initTrack(int index, tTrack* track, void *carHandle, void **carParmH
 
 
 
-SOCKET sock;
-struct sockaddr_in server, si_other;
-int slen , recv_len;
-WSADATA wsa;
 // Start a new race.
 static void newRace(int index, tCarElt* car, tSituation *sit)
-{
-	slen = sizeof(si_other);
-     
-    //Initialise winsock
-    WSAStartup(MAKEWORD(2,2),&wsa);
-     
+{     
+	struct sockaddr_in server;
+
     //Create a socket
-	sock = socket(AF_INET, SOCK_DGRAM, 0 );
+	sock[index] = socket(AF_INET, SOCK_DGRAM, 0 );
      
     //Prepare the sockaddr_in structure
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
-    server.sin_port = htons(BASE_PORT);
+    server.sin_port = htons(BASE_PORT + index);
     
 	int buf = 20;
-	setsockopt(sock,SOL_SOCKET,SO_RCVBUF,(const char*)&buf,sizeof(int));
+	setsockopt(sock[index],SOL_SOCKET,SO_RCVBUF,(const char*)&buf,sizeof(int));
 
     //Bind
-    bind(sock,(struct sockaddr *)&server, sizeof(server));
+    bind(sock[index],(struct sockaddr *)&server, sizeof(server));
 }
 
 
 // Drive during race.
 static void drive(int index, tCarElt* car, tSituation *s)
 {
-
+	struct sockaddr_in si_other;
+	int slen = sizeof(si_other);
 	pollfd fds;
-	fds.fd = sock;
+	fds.fd = sock[index];
 	fds.events = POLLIN;
 	fds.revents = -1;
 
-	if (WSAPoll(&fds,1,10)) {
+	if (WSAPoll(&fds,1,0)) {
 		if (fds.revents | POLLIN) {
 			char recvBuf[20];
-			recv_len = recvfrom(sock, recvBuf, 20, 0, (struct sockaddr *) &si_other, &slen);
+			recvfrom(sock[index], recvBuf, 20, 0, (struct sockaddr *) &si_other, &slen);
 			car->ctrl.accelCmd = *(float*)(recvBuf);
 			car->ctrl.brakeCmd = *(float*)(recvBuf+4);
 			car->ctrl.clutchCmd = *(float*)(recvBuf+8);
@@ -160,7 +162,7 @@ static void drive(int index, tCarElt* car, tSituation *s)
 		
 
 
-			sendto(sock,sendBuf,24,0,(const sockaddr *)&si_other,slen);
+			sendto(sock[index],sendBuf,24,0,(const sockaddr *)&si_other,slen);
 		}
 	}
 }
@@ -169,13 +171,13 @@ static void drive(int index, tCarElt* car, tSituation *s)
 // End of the current race.
 static void endRace(int index, tCarElt *car, tSituation *s)
 {
-	closesocket(sock);
+	closesocket(sock[index]);
 }
 
 
 // Called before the module is unloaded.
 static void shutdown(int index)
 {
-
+	WSACleanup();
 }
 
