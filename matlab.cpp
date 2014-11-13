@@ -6,17 +6,10 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-
 #ifdef _WIN32
-#include<winsock2.h>
-#include <windows.h>
+	#include<winsock2.h>
+	#include <windows.h>
 #endif
-
-#define BASE_PORT 8000   //The port on which to listen for incoming data
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 
 #include <tgf.h>
 #include <track.h>
@@ -25,7 +18,28 @@
 #include <robottools.h>
 #include <robot.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
 #define NBBOTS 10
+#define BASE_PORT 8000   //The port on which the first vehicle to listen for incoming data
+
+typedef struct vehicleDataStruct {
+	float throttle;
+	float brake;
+	float clutch;
+	float steering;
+	int gear;
+	float dist;
+	float speed;
+	float accel;
+	float angle;
+	float latErr;
+	float radius;
+	float rpm;
+} vehicleData_t;
+vehicleData_t* vehicleData;
 
 static const char* botname[NBBOTS] = {
 	"matlab 1", "matlab 2", "matlab 3", "matlab 4", "matlab 5",
@@ -37,6 +51,11 @@ static const char* botdesc[NBBOTS] = {
 	"matlab 6", "matlab 7", "matlab 8", "matlab 9", "matlab 10"
 };
 
+struct sockaddr_in client[NBBOTS];
+SOCKET sock[NBBOTS];
+WSADATA wsa;
+pollfd fds[NBBOTS];
+
 static void initTrack(int index, tTrack* track, void *carHandle, void **carParmHandle, tSituation *s);
 static void newRace(int index, tCarElt* car, tSituation *s);
 static void drive(int index, tCarElt* car, tSituation *s);
@@ -44,15 +63,8 @@ static void shutdown(int index);
 static int InitFuncPt(int index, void *pt);
 static void endRace(int index, tCarElt *car, tSituation *s);
 
-
-SOCKET sock[NBBOTS];
-WSADATA wsa;
-pollfd fds[NBBOTS];
-
-struct sockaddr_in client[NBBOTS];
-float throttle[NBBOTS], brake[NBBOTS], clutch[NBBOTS], steering[NBBOTS];
-int gear[NBBOTS];
-
+TCHAR szName[]=TEXT("Global\\TORCSDataStore");
+HANDLE hMapFile;
 
 // Module entry point.
 extern "C" int matlab(tModInfo *modInfo)
@@ -62,7 +74,21 @@ extern "C" int matlab(tModInfo *modInfo)
     WSAStartup(MAKEWORD(2,2),&wsa);
 	
 	int i;
-	
+
+	// Testing IPC
+	hMapFile = CreateFileMapping(
+                 INVALID_HANDLE_VALUE,			// use paging file
+                 NULL,							// default security
+                 PAGE_READWRITE,				// read/write access
+                 0,								// maximum object size (high-order DWORD)
+                 sizeof(vehicleData_t)*NBBOTS,	// maximum object size (low-order DWORD)
+                 szName);						// name of mapping object
+	vehicleData = (vehicleData_t*) MapViewOfFile(hMapFile,		// handle to map object
+                        FILE_MAP_ALL_ACCESS,					// read/write permission
+                        0,
+                        0,
+                        sizeof(vehicleData_t)*NBBOTS);
+
 	// Clear all structures.
 	memset(modInfo, 0, 10*sizeof(tModInfo));
 
@@ -132,6 +158,10 @@ static void newRace(int index, tCarElt* car, tSituation *sit)
 	fds[index].events = POLLIN;
 	fds[index].revents = -1;
 
+	// Zero local data store
+	memset(vehicleData,0,sizeof(vehicleData_t)*NBBOTS);
+
+
 	printf("matlab %d: Bound to %d (fd %d)\n",index,BASE_PORT + index, sock[index]);
 }
 
@@ -146,11 +176,11 @@ static void udpRXTX(int index, tCarElt* car) {
 //				printf("Data for #%d: ", i);
 				int len = recvfrom(fds[i].fd, recvBuf, 20, 0, (struct sockaddr *) &client[i], &slen);
 				if (len == 20) {	// Ignore the spurious data we get on end of simulation
-					throttle[i] = *(float*)(recvBuf);
-					brake[i] = *(float*)(recvBuf+4);
-					clutch[i] = *(float*)(recvBuf+8);
-					gear[i] = *(int*)(recvBuf+12);
-					steering[i] = *(float*)(recvBuf+16);
+					vehicleData[i].throttle = *(float*)(recvBuf);
+					vehicleData[i].brake = *(float*)(recvBuf+4);
+					vehicleData[i].clutch = *(float*)(recvBuf+8);
+					vehicleData[i].gear = *(int*)(recvBuf+12);
+					vehicleData[i].steering = *(float*)(recvBuf+16);
 				}
 //				printf("%f %f %f %d %f",throttle[i],brake[i],clutch[i],gear[i],steering[i]);
 			}
@@ -158,34 +188,45 @@ static void udpRXTX(int index, tCarElt* car) {
 //		printf("\n");
 	}
 	// Update current vehicle from local storage
-	car->ctrl.accelCmd = throttle[index];
-	car->ctrl.brakeCmd = brake[index];
-	car->ctrl.clutchCmd = clutch[index];
-	car->ctrl.gear = gear[index];
-	car->ctrl.steer = steering[index];
+	car->ctrl.accelCmd = vehicleData[index].throttle;
+	car->ctrl.brakeCmd = vehicleData[index].brake;
+	car->ctrl.clutchCmd = vehicleData[index].clutch;
+	car->ctrl.gear = vehicleData[index].gear;
+	car->ctrl.steer = vehicleData[index].steering;
 
 	// Output current vehicle to client (if we have one)
 	if (true) {		// TODO: Figure out how to test if client structure is empty
-		float dist = RtGetDistFromStart(car);
-		float speed = car->_speed_x;
-		float angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
-		angle = fmod(angle + 2*PI,2*PI);	// Normalise heading angle
-		if (angle > PI) {
-			angle = angle - 2*PI;
+		vehicleData[index].dist = RtGetDistFromStart(car);
+		vehicleData[index].speed = car->_speed_x;
+		vehicleData[index].accel = car->_accel_x;
+		vehicleData[index].angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
+		vehicleData[index].angle = fmod(vehicleData[index].angle + 2*PI,2*PI);	// Normalise heading angle
+		if (vehicleData[index].angle > PI) {
+			vehicleData[index].angle = vehicleData[index].angle - 2*PI;
 		}
-		float latErr = car->_trkPos.toMiddle;
-		float radius = car->_trkPos.seg->radius;
-		float rpm = car->_enginerpm * 9.54929659; // For some reason RPM is actually rad/s!
+		vehicleData[index].latErr = car->_trkPos.toMiddle;
+		vehicleData[index].radius = car->_trkPos.seg->radius;
+		vehicleData[index].rpm = car->_enginerpm * 9.54929659; // For some reason RPM is actually rad/s!
 
-		char sendBuf[24];
-		memcpy(sendBuf,&dist,4);
-		memcpy(sendBuf+4,&speed,4);
-		memcpy(sendBuf+8,&angle,4);
-		memcpy(sendBuf+12,&latErr,4);
-		memcpy(sendBuf+16,&radius,4);
-		memcpy(sendBuf+20,&rpm,4);
 
-		sendto(sock[index],sendBuf,24,0,(const sockaddr *)&client[index],slen);
+		float f = 3.14159;
+		int ii = 54321;
+
+		//CopyMemory((PVOID)(pBuf + sizeof(vehicleData_t)*index), &vehicleData[index], sizeof(vehicleData_t));
+		//CopyMemory((PVOID)(pBuf), &f, sizeof(f));
+//		void* pp = (void*)(pBuf) + index;
+//		memcpy(pp+int(sizeof(vehicleData_t)*index),&(vehicleData[index]),sizeof(vehicleData_t));
+
+		char sendBuf[28];
+		memcpy(sendBuf,&vehicleData[index].dist,4);
+		memcpy(sendBuf+4,&vehicleData[index].speed,4);
+		memcpy(sendBuf+8,&vehicleData[index].accel,4);
+		memcpy(sendBuf+12,&vehicleData[index].angle,4);
+		memcpy(sendBuf+16,&vehicleData[index].latErr,4);
+		memcpy(sendBuf+20,&vehicleData[index].radius,4);
+		memcpy(sendBuf+24,&vehicleData[index].rpm,4);
+
+		sendto(sock[index],sendBuf,28,0,(const sockaddr *)&client[index],slen);
 	}
 }
 
@@ -209,5 +250,6 @@ static void endRace(int index, tCarElt *car, tSituation *s)
 static void shutdown(int index)
 {
 	WSACleanup();
+	UnmapViewOfFile(vehicleData);
+    CloseHandle(hMapFile);
 }
-
