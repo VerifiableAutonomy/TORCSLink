@@ -14,10 +14,24 @@
     <ClCompile Include="matlab.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TORCSLink.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="matlab.def">
       <Filter>Source Files</Filter>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TORCSLink.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="matlab.xml" />
   </ItemGroup>
 </Project>
