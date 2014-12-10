@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.8.0_25" class="java.beans.XMLDecoder">
+ <object class="utils.Properties">
+  <void property="author">
+   <string>Owen McAree</string>
+  </void>
+  <void property="category">
+   <string>road</string>
+  </void>
+  <void property="currentA">
+   <double>-6.28318530717961</double>
+  </void>
+  <void property="currentX">
+   <double>2.9105606813573104E-12</double>
+  </void>
+  <void property="currentY">
+   <double>-2.984279490192421E-13</double>
+  </void>
+  <void property="description">
+   <string>Long straights and shallow bends</string>
+  </void>
+  <void property="path">
+   <string>C:\torcs-1.3.6\runtime\tracks\road\Motorway</string>
+  </void>
+  <void property="trackName">
+   <string>Motorway</string>
+  </void>
+ </object>
+</java>
