@@ -1,0 +1,44 @@
+--- src/modules/simu/simuv2/car.cpp	Mon Feb 10 10:06:30 2014
++++ src/modules/simu/simuv2/car.cpp	Tue Dec  2 17:45:27 2014
+@@ -294,18 +294,23 @@
+ 		car->wheel[i].bodyVel.y = vy + car->DynGC.vel.az * x;
+ 	}
+ }
+-
+ static void
+ SimCarUpdatePos(tCar *car)
+ {
+-	tdble vx, vy;
++	double vx, vy;
+ 	
+ 	vx = car->DynGCg.vel.x;
+ 	vy = car->DynGCg.vel.y;
+ 	
+-	car->DynGCg.pos.x += vx * SimDeltaTime;
+-	car->DynGCg.pos.y += vy * SimDeltaTime;
+-	car->DynGCg.pos.z += car->DynGCg.vel.z * SimDeltaTime;
++	if (car->DynGCg.posD.x == 0 && car->DynGCg.posD.y == 0 && car->DynGCg.posD.z == 0) {
++		car->DynGCg.posD.x = car->DynGCg.pos.x;
++		car->DynGCg.posD.y = car->DynGCg.pos.y;
++		car->DynGCg.posD.z = car->DynGCg.pos.z;
++	}
++
++	car->DynGCg.posD.x += vx * SimDeltaTime;
++	car->DynGCg.posD.y += vy * SimDeltaTime;
++	car->DynGCg.posD.z += car->DynGCg.vel.z * SimDeltaTime;
+ 	
+ 	car->DynGCg.pos.ax += car->DynGCg.vel.ax * SimDeltaTime;
+ 	car->DynGCg.pos.ay += car->DynGCg.vel.ay * SimDeltaTime;
+@@ -317,7 +322,11 @@
+ 	if (car->DynGCg.pos.ax < -aMax) car->DynGCg.pos.ax = -aMax;
+ 	if (car->DynGCg.pos.ay > aMax) car->DynGCg.pos.ay = aMax;
+ 	if (car->DynGCg.pos.ay < -aMax) car->DynGCg.pos.ay = -aMax;
+-	
++
++	car->DynGCg.pos.x = (float)car->DynGCg.posD.x;
++	car->DynGCg.pos.y = (float)car->DynGCg.posD.y;
++	car->DynGCg.pos.z = (float)car->DynGCg.posD.z;
++
+ 	car->DynGC.pos.x = car->DynGCg.pos.x;
+ 	car->DynGC.pos.y = car->DynGCg.pos.y;
+ 	car->DynGC.pos.z = car->DynGCg.pos.z;
