@@ -317,7 +317,9 @@ copy $(ProjectDir)matlab.xml $(SolutionDir)runtime\drivers\matlab</Command>
     <ClInclude Include="TORCSLink.h" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="matlab.xml" />
+    <Xml Include="matlab.xml">
+      <SubType>Designer</SubType>
+    </Xml>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
