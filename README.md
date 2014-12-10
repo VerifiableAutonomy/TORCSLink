@@ -1,5 +1,5 @@
 # Simulink Robot for The Open Source Race Car Simulator (TORCS)
-This robot plugin for TORCS allows you to develop a vehicle control system in MATLAB and Simulink. An example Simulink model
+This robot plugin for [TORCS](http://torcs.sourceforge.net/) allows you to develop a vehicle control system in MATLAB and Simulink. An example Simulink model
 is provided which demonstrates an Automatic Cruise Control system. 
 
 Currently, Windows is the only supported platform, but a Linux version is under development...
