@@ -184,9 +184,9 @@ static void drive(int index, tCarElt* car, tSituation *s)
 	data->vehicle[index].data.position[1] = car->pub.DynGCg.posD.y;
 	data->vehicle[index].data.position[2] = car->pub.DynGCg.posD.z;
 #else
-	data->vehicleData[index].position[0] = car->pub.DynGCg.pos.x;
-	data->vehicleData[index].position[1] = car->pub.DynGCg.pos.y;
-	data->vehicleData[index].position[2] = car->pub.DynGCg.pos.z;
+	data->vehicle[index].data.position[0] = car->pub.DynGCg.pos.x;
+	data->vehicle[index].data.position[1] = car->pub.DynGCg.pos.y;
+	data->vehicle[index].data.position[2] = car->pub.DynGCg.pos.z;
 #endif
 	data->vehicle[index].data.velocity[0] = car->pub.DynGCg.vel.x;
 	data->vehicle[index].data.velocity[1] = car->pub.DynGCg.vel.y;
