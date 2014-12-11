@@ -10,12 +10,13 @@ Currently, Windows is the only supported platform, but a Linux version is under 
 (Note, there may be some minor bug fixes needed depending on your version of Visual Studio)
 
 2. Checkout this repository in the `src/drivers` folder
-    
+
+    ```
     cd path/to/torcs/src/drivers
-    git clone https://github.com/VerifiableAutonomy/TORCSLink.git`
-
-3. Add the `matlab.vcxproj` to your TORCS solution
-
+    git clone https://github.com/VerifiableAutonomy/TORCSLink.git
+    ```
+    
+3. Add the `matlab.vcxproj` project to your TORCS solution
 4. For the initial build you need to disable the `TL_USE_DOUBLE_POSITION` and `TL_ENABLE_RESTARTS`
 features by commenting out the `#define` lines in `TORCSLink.h`, these can be enabled later with reference to the sections
 below
@@ -35,8 +36,10 @@ with MATLAB R2014b (64-bit version).
 
 3. Select `New Race`. In the command line output you should see 
 
+    ```
     matlab 0: Online
     matlab 1: Online
+    ```
 This indicates that TORCSLink is ready for Simulink to connect.
 
 4. Open the `ACC_Example.slx` model in Simulink and run it. In TORCS, you should see the vehicles set off and drive the profile 
