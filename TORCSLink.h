@@ -80,6 +80,34 @@ typedef struct TOCSDataStruct {
 } TORCSData_t;
 
 /* Location of shared memory */
-TCHAR FileMapName[] = TEXT("Local\\TORCSDataStore");
+#ifdef _WIN32
+	TCHAR FileMapName[] = TEXT("Local\\TORCSDataStore");
+	HANDLE hMapFile;
+#endif
+
+TORCSData_t * tlData;
+
+/* Initialise shared memory */
+int tlInitSharedMemory() {
+#ifdef _WIN32
+	hMapFile = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0,	sizeof(TORCSData_t), FileMapName);
+	tlData = (TORCSData_t*)MapViewOfFile(hMapFile, FILE_MAP_ALL_ACCESS,	0, 0, sizeof(TORCSData_t));
+#endif
+	if (tlData == NULL) {
+#ifdef _WIN32
+		return GetLastError();
+#endif
+	}
+	return 0;
+}
+
+/* Clean up shared memory */
+int tlCloseSharedMemory() {
+#ifdef _WIN32
+	UnmapViewOfFile(tlData);
+	CloseHandle(hMapFile);
+#endif
+	return 0;
+}
 
 #endif
