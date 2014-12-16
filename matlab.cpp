@@ -86,7 +86,7 @@ static void initTrack(int index, tTrack* track, void *carHandle, void **carParmH
 /* Start a new race  */
 static void newRace(int index, tCarElt* car, tSituation *sit) {
 	// Zero data store
-	memset(tlData,0,sizeof(TORCSData_t));
+	memset((void*)tlData,0,sizeof(TORCSData_t));
 	tlData->controlFlag = TL_NO_DATA;
 	printf("matlab %d: Online\n",index);
 }

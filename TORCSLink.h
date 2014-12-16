@@ -120,7 +120,7 @@ int tlInitSharedMemory() {
 /* Clean up shared memory */
 int tlCloseSharedMemory() {
 #ifdef _WIN32
-	UnmapViewOfFile(tlData);
+	UnmapViewOfFile((void*)tlData);
 	CloseHandle(hMapFile);
 #elif __linux__
 	munmap((void*)tlData, sizeof(TORCSData_t));
