@@ -57,6 +57,7 @@ extern "C" int matlab(tModInfo *modInfo) {
 		modInfo[i].gfId    = ROB_IDENT;	
 		modInfo[i].index   = i;
 	}
+	printf("matlab robots: Initialised!\n");
 	return 0;
 }
 

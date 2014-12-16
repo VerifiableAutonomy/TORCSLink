@@ -31,7 +31,11 @@ int initTORCSLink() {
    /* Set the restart flag and wait for robots to be ready */
    tlData->controlFlag = TL_RESTART_RACE;
    while (tlData->controlFlag != TL_READY && timeout++<maxTimeout) {
+#ifdef _WIN32
 	   Sleep(100);
+#elif __linux__
+	   usleep(100000);
+#endif
    }
    if (timeout >= maxTimeout) {
 	   return -2;
@@ -47,7 +51,7 @@ int setVehicleControl(int i, vehicleControl_t con) {
 	/* If we can't read any data then something went wrong with the initialise
 	Easiest way to inform user is by returning -1 and letting Simulink deal with it */
 	if (tlData == NULL) {
-		return -1;	// Bad connection
+		return -1;	/* Bad connection */
 	}
 	tlData->enable = 1;
 	tlData->vehicle[i].control = con;
@@ -57,10 +61,11 @@ int setVehicleControl(int i, vehicleControl_t con) {
 /* Update TORCS by informing it that it has new data for controls then wait until it updates outputs */
 int updateTORCS() {
 	int itr = 0, maxItr = 1E9;
+
 	/* If we can't read any data then something went wrong with the initialise
 	Easiest way to inform user is by returning -1 and letting Simulink deal with it */
 	if (tlData == NULL) {
-		return -1;	// Bad connection
+		return -1;	/* Bad connection */
 	}
 
 	/* Inform robot is has new data */
@@ -70,7 +75,7 @@ int updateTORCS() {
 	while (tlData->controlFlag == TL_NEW_DATA && ++itr<maxItr) {
 	}
 	if (itr >= maxItr) {
-		return -2;	// No new data in time
+		return -itr;	/* No new data in time */
 	}
 	return itr;
 }
@@ -80,10 +85,10 @@ int getVehicleData(int i, vehicleData_t *veh) {
 	/* If we can't read any data then something went wrong with the initialise
 	Easiest way to inform user is by returning -1 and letting Simulink deal with it */
 	if (tlData == NULL) {
-		return -1;	// Bad connection
+		return -1;	/* Bad connection */
 	}
 	(*veh) = tlData->vehicle[i].data;
-	return 0; // veh[0].control.gear;	// All is well
+	return 0; /* All is well */
 }
 
 int terminateTORCSLink() {
