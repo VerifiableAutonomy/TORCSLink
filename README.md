@@ -72,7 +72,8 @@ with MATLAB R2014b (64-bit version).
 
 1. To use the provided Automatic Cruise Control example it is recommended to install the *Motorway* track
     (a large oval with long straights and shallow corners). To do so, simply copy the `Motorway` folder
-    in to the `runtime/tracks/road` directory in your TORCS directory.
+    in to the `road` tracks directory in your TORCS installation (`path/to/torcs/runtime/tracks/road` on
+    Windows and `/usr/local/share/games/torcs/tracks/road/` on Linux).
 
 2. Start TORCS and select `Race` > `Quick Race` > `Configure Race`, choose the `Motorway` track. Deselect any drivers 
     which may be present in the race, then add the drivers `matlab 0` and `matlab 1`.
