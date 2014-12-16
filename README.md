@@ -2,9 +2,9 @@
 This robot plugin for [TORCS](http://torcs.sourceforge.net/) allows you to develop a vehicle control system in MATLAB and Simulink. An example Simulink model
 is provided which demonstrates an Automatic Cruise Control system. 
 
-Currently, Windows is the only supported platform, but a Linux version is under development...
+Tested on Windows 7 x64 and Xubuntu 14.04.1 with MATLAB R2014b.
 
-## Set up
+## Set up - Windows
 1. Download the TORCS source files and compile them as detailed
 [here](http://torcs.sourceforge.net/index.php?artid=3&name=Sections&op=viewarticle#linux-src-all-win) 
 (Note, there may be some minor bug fixes needed depending on your version of Visual Studio)
@@ -22,6 +22,49 @@ features by commenting out the `#define` lines in `TORCSLink.h`, these can be en
 below
 
 5. Build the solution. TORCSLink is now ready to go...
+
+## Set up - Linux
+1. Download the TORCS source file and compile them as detailed
+[here](http://torcs.sourceforge.net/index.php?artid=3&name=Sections&op=viewarticle#linux-src-all)
+(Note, I had to install some dependancies not listed, but the ./configure step should help you identify what you need)
+
+2. Checkout this repository in the `src/drivers` folder
+
+    ```
+    cd path/to/torcs/src/drivers
+    git clone https://github.com/VerifiableAutonomy/TORCSLink.git
+    ```
+
+3. Change to the folder, open `TORCSLink.h` and comment out the `#define TL_USE_DOUBLE_POSITION` and
+`#define TL_ENABLE_RESTARTS` lines. Refer to the section below for details on enabling these later.
+
+4. Build the plugin with
+
+    ```
+    make && make install
+    ```
+
+5. Before you can run the Simulink model on Linux you must place a symbolic link to the librt library in your current
+directory. Firstly, locate the library on your system by executing
+
+    ```
+    ldconfig -p | grep "librt.so "
+    ```
+
+You should see an output similar to
+
+    ```
+        librt.so (libc6,x86-64, OS ABI: Linux 2.6.24) => /usr/lib/x86_64-linux-gnu/librt.so
+    ```
+
+The latter part of which is the path you need to know. In the same directory as the Simulink model, execute
+
+    ```
+    ln -s /usr/lib/x86_64-linux-gnu/librt.so
+    ```
+
+Replacing the path with the one you found above. Your Simulink model should now be able to build correctly.
+
 
 ## Usage
 This section tells you how to get up and running with the Automatic Cruise Control example provided. This has been tested
