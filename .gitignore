@@ -74,3 +74,6 @@ slprj/
 *.autosave
 *.mex*
 *.exe
+*.so
+*.o
+*.depend
