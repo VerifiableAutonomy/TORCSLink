@@ -53,15 +53,15 @@ directory. Firstly, locate the library on your system by executing
 
 You should see an output similar to
 
-    ```
+    
         librt.so (libc6,x86-64, OS ABI: Linux 2.6.24) => /usr/lib/x86_64-linux-gnu/librt.so
-    ```
+    
 
 The latter part of which is the path you need to know. In the same directory as the Simulink model, execute
 
-    ```
+    
     ln -s /usr/lib/x86_64-linux-gnu/librt.so
-    ```
+    
 
 Replacing the path with the one you found above. Your Simulink model should now be able to build correctly.
 
