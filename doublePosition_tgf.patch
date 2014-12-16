@@ -1,28 +1,16 @@
---- export/include/tgf.h	Sun Aug 25 16:36:59 2013
-+++ export/include/tgf.h	Wed Dec  3 09:48:21 2014
-@@ -130,19 +130,29 @@
- */
- typedef struct {
-     tdble	x;		/**< x coordinate */
--    tdble	y;		/**< y coordinate */
--    tdble	z;		/**< z coordinate */
--    tdble	ax;		/**< angle along x axis */
--    tdble	ay;		/**< angle along y axis */
--    tdble	az;		/**< angle along z axis */
-+	tdble	y;		/**< y coordinate */
-+	tdble	z;		/**< z coordinate */
-+	tdble	ax;		/**< angle along x axis */
-+	tdble	ay;		/**< angle along y axis */
-+	tdble	az;		/**< angle along z axis */
+--- ./export/include/tgf.h	2014-12-12 10:06:14.597994038 +0000
++++ ./export/include/tgf.h	2014-12-12 10:06:00.133230290 +0000
+@@ -137,12 +137,22 @@
+     tdble	az;		/**< angle along z axis */
  } tPosd;
  
 +typedef struct {
-+	double	x;		/**< x coordinate */
-+	double	y;		/**< y coordinate */
-+	double	z;		/**< z coordinate */
-+	double	ax;		/**< angle along x axis */
-+	double	ay;		/**< angle along y axis */
-+	double	az;		/**< angle along z axis */
++    double	x;		/**< x coordinate */
++    double	y;		/**< y coordinate */
++    double	z;		/**< z coordinate */
++    double	ax;		/**< angle along x axis */
++    double	ay;		/**< angle along y axis */
++    double	az;		/**< angle along z axis */
 +} tPosdDbl;
 +
  /** Dynamic point structure.
@@ -30,10 +18,8 @@
  */
  typedef struct 
  {
--    tPosd pos; /**< position */
-+	tPosd pos; /**< position */
-+	tPosdDbl posD; /**< position */
+     tPosd pos; /**< position */
++    tPosdDbl posD;
      tPosd vel; /**< velocity */
      tPosd acc; /**< acceleration */
  } tDynPt;
- 
