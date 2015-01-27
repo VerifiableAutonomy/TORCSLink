@@ -47,6 +47,10 @@ See here: http://torcs.sourceforge.net/index.php?name=Sections&op=viewarticle&ar
 #define TL_RESTART_RACE 2		/* Robot should restart the race (if available) */
 #define TL_READY 255			/* Robot is ready */
 
+/* Window resolution of TORCS for screen grabbing*/
+#define SCREEN_WIDTH 320
+#define SCREEN_HEIGHT 240
+
 /* Structures for vehicle data */
 /* Use double for all floating point values for easy compatibility with Simulink */
 
@@ -83,6 +87,7 @@ typedef struct vehicleStruct {
 typedef struct TOCSDataStruct {
 	volatile int enable;
 	volatile int controlFlag;
+	volatile unsigned char imgBuffer[SCREEN_WIDTH*SCREEN_HEIGHT*3];
 	vehicle_t vehicle[N_VEHICLES];
 } TORCSData_t;
 

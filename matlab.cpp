@@ -26,6 +26,7 @@
 #include <raceman.h>
 #include <robottools.h>
 #include <robot.h>
+#include <GL/glut.h>
 
 #include "TORCSLink.h"
 
@@ -36,6 +37,43 @@ static void shutdown(int index);
 static int InitFuncPt(int index, void *pt);
 static void endRace(int index, tCarElt *car, tSituation *s);
 
+void snapshot(int windowWidth, int windowHeight) { //, char* filename) {
+
+	glReadPixels((GLint)0, (GLint)0,
+		(GLint)windowWidth - 1, (GLint)windowHeight - 1,
+		GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)tlData->imgBuffer);
+
+/*	FILE *filePtr = fopen(filename, "wb");
+	if (!filePtr)
+		return;
+
+	BITMAPFILEHEADER bitmapFileHeader;
+	BITMAPINFOHEADER bitmapInfoHeader;
+
+	bitmapFileHeader.bfType = 0x4D42; //"BM"
+	bitmapFileHeader.bfSize = windowWidth*windowHeight * 3;
+	bitmapFileHeader.bfReserved1 = 0;
+	bitmapFileHeader.bfReserved2 = 0;
+	bitmapFileHeader.bfOffBits =
+		sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER);
+
+	bitmapInfoHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bitmapInfoHeader.biWidth = windowWidth - 1;
+	bitmapInfoHeader.biHeight = windowHeight - 1;
+	bitmapInfoHeader.biPlanes = 1;
+	bitmapInfoHeader.biBitCount = 24;
+	bitmapInfoHeader.biCompression = BI_RGB;
+	bitmapInfoHeader.biSizeImage = 0;
+	bitmapInfoHeader.biXPelsPerMeter = 0; // ?
+	bitmapInfoHeader.biYPelsPerMeter = 0; // ?
+	bitmapInfoHeader.biClrUsed = 0;
+	bitmapInfoHeader.biClrImportant = 0;
+
+	fwrite(&bitmapFileHeader, sizeof(BITMAPFILEHEADER), 1, filePtr);
+	fwrite(&bitmapInfoHeader, sizeof(BITMAPINFOHEADER), 1, filePtr);
+	fwrite((const void *)tlData->imgBuffer, windowWidth*windowHeight * 3, 1, filePtr);
+	fclose(filePtr); */
+}
 
 /* Module entry point */
 extern "C" int matlab(tModInfo *modInfo) {
@@ -58,6 +96,7 @@ extern "C" int matlab(tModInfo *modInfo) {
 		modInfo[i].index   = i;
 	}
 	printf("matlab robots: Initialised!\n");
+//	snapshot(800, 600, "C:/torcs-1.3.6/src/drivers/matlab/test.bmp");
 	return 0;
 }
 
@@ -210,6 +249,11 @@ static void drive(int index, tCarElt* car, tSituation *s) {
 	}
 	tlData->vehicle[index].data.roadCurvature = curvature;
 	tlData->vehicle[index].data.engineRPM = car->_enginerpm * 9.54929659; // For some reason RPM is actually rad/s!
+
+
+	if (index == 0) {
+		snapshot(800, 600);
+	}
 
 }
 

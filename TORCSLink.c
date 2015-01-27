@@ -91,6 +91,10 @@ int getVehicleData(int i, vehicleData_t *veh) {
 	return 0; /* All is well */
 }
 
+int getScreen(unsigned char *img) {
+	memcpy(img, tlData->imgBuffer, SCREEN_WIDTH*SCREEN_HEIGHT * 3);
+}
+
 int terminateTORCSLink() {
 	tlData->enable = 0;
 	tlCloseSharedMemory();
