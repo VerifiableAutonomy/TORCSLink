@@ -70,6 +70,7 @@ typedef struct vehicleDataStruct {
 	double lateralError;			/* Lateral error between car (CoG) and track centreline (at current location) [m] */
 	double roadDistance;			/* Distance travelled along track from start/finish line [m] */
 	double roadCurvature;			/* Curvature of track (at current location), left turns = +ve curvature, right turns = -ve curvature */
+	double roadWidth;			/* Width of the track (at current location) */
 	double engineRPM;			/* Engine RPM */
 } vehicleData_t;
 

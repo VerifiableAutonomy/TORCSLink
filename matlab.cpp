@@ -209,6 +209,7 @@ static void drive(int index, tCarElt* car, tSituation *s) {
 		}
 	}
 	tlData->vehicle[index].data.roadCurvature = curvature;
+	tlData->vehicle[index].data.roadWidth = car->_trkPos.seg->width;
 	tlData->vehicle[index].data.engineRPM = car->_enginerpm * 9.54929659; // For some reason RPM is actually rad/s!
 
 }
